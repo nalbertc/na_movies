@@ -1,0 +1,16 @@
+# host api
+SERVER_HOST=http://localhost
+SERVER_PORT=3000
+
+# database
+DATABASE_URL="postgresql://postgres:root@localhost:5432/nanews?schema=public"
+
+# database production
+# DATABASE_URL="postgresql://neondb_owner:npg_IjoLzExrV05g@ep-fancy-dream-a46m7pbm-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+# uncomment next line if you use Prisma <5.10
+# DATABASE_URL_UNPOOLED="postgresql://neondb_owner:npg_IjoLzExrV05g@ep-fancy-dream-a46m7pbm.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+
+# jwt
+API_SECRET=4e0b72bc-3445-45d7-9b65-24c124fbf802
+
+TMDB_BEARER_TOKEN=eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIwYmIzNWRjYjE3ZTMxZThhZDMwMDcxZmU0M2FlODgwNiIsIm5iZiI6MTcwMTg3OTQ2Ny45MDksInN1YiI6IjY1NzA5ZWFiZmFkOGU5MDEzYTFkZGRlZSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.emdpRKAziQwnJ7aFQjZNvGwo52iZFn9P4I268ldghSU

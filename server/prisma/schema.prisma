@@ -1,0 +1,117 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  // eslint-disable-next-line
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id String @id @default(uuid())
+
+  nome  String
+  email String @unique
+  senha String
+
+  genres       UserGenre[]
+  interactions UserMovieInteraction[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@map("user")
+}
+
+model Genre {
+  id     String @id @default(uuid())
+  nome   String
+  slug   String @unique
+  tmdbId Int?   @unique
+
+  users  UserGenre[]
+  movies MovieGenre[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@map("genre")
+}
+
+model UserGenre {
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  genreId String
+  genre   Genre  @relation(fields: [genreId], references: [id])
+
+  weight Decimal
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@id([userId, genreId])
+  @@map("usergenre")
+}
+
+model Movie {
+  id String @id @default(uuid())
+
+  tmdbId Int @unique
+
+  title        String
+  description  String?
+  url          String?
+  posterPath   String?
+  backdropPath String?
+
+  releaseDate DateTime?
+
+  genres       MovieGenre[]
+  interactions UserMovieInteraction[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@map("movie")
+}
+
+model MovieGenre {
+  movieId String
+  movie   Movie  @relation(fields: [movieId], references: [id])
+
+  genreId String
+  genre   Genre  @relation(fields: [genreId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@id([movieId, genreId])
+  @@map("moviegenre")
+}
+
+model UserMovieInteraction {
+  id String @id @default(uuid())
+
+  type            INTERACTION_TYPE
+  durationSeconds Int?
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  movieId String
+  movie   Movie  @relation(fields: [movieId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@map("usermovieinteraction")
+}
+
+enum INTERACTION_TYPE {
+  CLICK
+  VIEW
+  LIKE
+  DISLIKE
+  SHARE
+  SAVE
+}
