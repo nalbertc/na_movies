@@ -1,25 +1,23 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom"
+import { BrowserRouter as Router } from "react-router-dom";
 
-import { Genre } from "../pages/Genre"
-import { Home } from "../pages/Home"
-import { Login } from "../pages/Login"
-import { MinhasListas } from "../pages/MyList"
-import { NotFound } from "../pages/NotFound"
-import { Movie } from "../pages/Personagem"
+import { useAuth } from "../contexts/AuthContext";
+import { AuthRoutes } from "./auth.routes";
+import { PublicRoutes } from "./public.routes";
 
 export function WebRoutes() {
+  const { user } = useAuth();
+
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/listas" element={<MinhasListas />} />
-        <Route path="/generos" element={<Genre />} />
-        <Route path="/filme/:id" element={<Movie />} />
+    <Router future={{
+      v7_relativeSplatPath: true,
+      v7_startTransition: true,
+    }}>
+      {user?.id ?
+        <AuthRoutes />
 
-        <Route path="/*" element={<NotFound />} />
-      </Routes>
-
-    </BrowserRouter>
+        :
+        <PublicRoutes />
+      }
+    </Router>
   )
 }
