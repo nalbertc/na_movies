@@ -49,6 +49,9 @@ export function Movie() {
       try {
         setLoading(true);
         const { data } = await api.get(`/movies/tmdb/${id}`);
+
+        api.post(`/interaction?id=${id}&type=VIEW`)
+
         setMovie(data);
       } catch (error) {
         console.error("Erro ao buscar detalhes do filme:", error);

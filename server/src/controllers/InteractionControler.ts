@@ -1,4 +1,3 @@
-
 import { INTERACTION_TYPE, UserMovieInteraction } from "@prisma/client";
 import { Request, Response } from "express";
 import z from "zod";
@@ -6,13 +5,16 @@ import { prisma } from "../database";
 import { getMovieById } from "../services/tmdb";
 import { getCurrentUser } from "../utils/getUser";
 
-const interactionFieldMap: Record<INTERACTION_TYPE, keyof UserMovieInteraction> = {
-  [INTERACTION_TYPE.VIEW]: 'viewedAt',
-  [INTERACTION_TYPE.LIKE]: 'likedAt',
-  [INTERACTION_TYPE.SAVE]: 'savedAt',
-  [INTERACTION_TYPE.SHARE]: 'shared', // Nome exato do seu schema
-  [INTERACTION_TYPE.CLICK]: 'createdAt', // Ou outra coluna se tiver clicadoAt
-  [INTERACTION_TYPE.DISLIKE]: 'createdAt', // Ajuste conforme seu schema se tiver algo específico
+const interactionFieldMap: Record<
+  INTERACTION_TYPE,
+  keyof UserMovieInteraction
+> = {
+  [INTERACTION_TYPE.VIEW]: "viewedAt",
+  [INTERACTION_TYPE.LIKE]: "likedAt",
+  [INTERACTION_TYPE.SAVE]: "savedAt",
+  [INTERACTION_TYPE.SHARE]: "shared", // Nome exato do seu schema
+  [INTERACTION_TYPE.CLICK]: "createdAt", // Ou outra coluna se tiver clicadoAt
+  [INTERACTION_TYPE.DISLIKE]: "createdAt", // Ajuste conforme seu schema se tiver algo específico,
 };
 
 export default {
@@ -37,7 +39,7 @@ export default {
       // 2. Busca o filme e seus gêneros de uma só vez
       let movie = await prisma.movie.findUnique({
         where: { tmdbId: tmdbIdNum },
-        include: { genres: true }
+        include: { genres: true },
       });
 
       // 3. Se o filme não existir, busca no TMDB e cria no banco
@@ -53,21 +55,23 @@ export default {
             releaseDate: new Date(movieTMDB.release_date),
             backdropPath: movieTMDB.backdrop_path,
             genres: {
-              create: movieTMDB.genres.map((genre: { id: number; name: string }) => ({
-                genre: {
-                  connectOrCreate: {
-                    where: { tmdbId: genre.id },
-                    create: {
-                      nome: genre.name,
-                      slug: genre.name.toLowerCase().trim(), // Exemplo de tratamento de slug
-                      tmdbId: genre.id
-                    }
-                  }
-                }
-              }))
-            }
+              create: movieTMDB.genres.map(
+                (genre: { id: number; name: string }) => ({
+                  genre: {
+                    connectOrCreate: {
+                      where: { tmdbId: genre.id },
+                      create: {
+                        nome: genre.name,
+                        slug: genre.name.toLowerCase().trim(), // Exemplo de tratamento de slug
+                        tmdbId: genre.id,
+                      },
+                    },
+                  },
+                }),
+              ),
+            },
           },
-          include: { genres: true } // Já retorna os gêneros acoplados
+          include: { genres: true }, // Já retorna os gêneros acoplados
         });
       }
 
@@ -80,8 +84,8 @@ export default {
         where: {
           userId: user.id,
           movieId: movie.id,
-          [targetField]: { not: null }
-        }
+          [targetField]: { not: null },
+        },
       });
 
       if (existingInteraction) {
@@ -94,9 +98,9 @@ export default {
           type,
           userId: user.id,
           movieId: movie.id,
-          [targetField]: new Date()
+          [targetField]: new Date(),
         },
-        include: { movie: true, user: true }
+        include: { movie: true, user: true },
       });
 
       // 6. Atualização de pesos dos gêneros (Otimizado)
@@ -106,7 +110,7 @@ export default {
         [INTERACTION_TYPE.SHARE]: 1.5,
         [INTERACTION_TYPE.LIKE]: 2.0,
         [INTERACTION_TYPE.CLICK]: 0,
-        [INTERACTION_TYPE.DISLIKE]: 0 // Ajuste este valor se dislike diminuir peso (ex: -1)
+        [INTERACTION_TYPE.DISLIKE]: 0, // Ajuste este valor se dislike diminuir peso (ex: -1)
       };
 
       const value = weightMap[type] || 0;
@@ -119,17 +123,17 @@ export default {
               userId_genreId: {
                 userId: user.id,
                 genreId: genre.genreId,
-              }
+              },
             },
             update: {
-              weight: { increment: value }
+              weight: { increment: value },
             },
             create: {
               weight: value,
               userId: user.id,
-              genreId: genre.genreId
-            }
-          })
+              genreId: genre.genreId,
+            },
+          }),
         );
 
         // Executa todos os upserts concorrentemente de forma segura antes da resposta
@@ -137,10 +141,11 @@ export default {
       }
 
       return res.status(200).json({ type, movieInteraction });
-
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: "Parâmetros inválidos", details: error.errors });
+        return res
+          .status(400)
+          .json({ error: "Parâmetros inválidos", details: error.errors });
       }
       console.error(error);
       return res.status(500).json("Internal server error");
@@ -148,35 +153,30 @@ export default {
   },
 
   async viewInteractionUser(req: Request, res: Response) {
-
     try {
-
       const user = await getCurrentUser(req);
 
       if (!user) {
         return res.status(404).json("Usuário não encontrado");
       }
 
-      const interactionUser = await prisma.userGenre.findMany({
+      const interactionUser = await prisma.userMovieInteraction.findMany({
         where: {
           userId: user.id,
-
-        }, include: {
-          genre: true
-        }
+        },
+        include: {
+          movie: true,
+        },
       });
-
-
 
       return res.status(200).json(interactionUser);
     } catch (error) {
       console.error(error);
       return res.status(500).json("Internal server error");
     }
-
   },
 
-  async update(req: Request, res: Response) { },
+  async update(req: Request, res: Response) {},
 
-  async delete(req: Request, res: Response) { },
+  async delete(req: Request, res: Response) {},
 };

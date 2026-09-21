@@ -1,10 +1,10 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom"
+import { Route, Routes } from "react-router-dom"
 
 import { Genre } from "../pages/Genre"
 import { Home } from "../pages/Home"
+import { Movie } from "../pages/Movie"
 import { MinhasListas } from "../pages/MyList"
 import { NotFound } from "../pages/NotFound"
-import { Movie } from "../pages/Personagem"
 import { Teste } from "../pages/Teste"
 
 export function AuthRoutes() {
