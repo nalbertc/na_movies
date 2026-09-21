@@ -63,4 +63,23 @@ export default {
       return res.status(500).json("Internal server error");
     }
   },
+
+  async moviesDestak(req: Request, res: Response) {
+    const createReqQuery = z.object({
+      page: z.string(),
+    });
+
+    try {
+      const { page = 1 } = createReqQuery.parse(req.query);
+
+      const data = await getPopularMovies("pt-BR", Number(page));
+
+      return res.status(200).json(data);
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json("Internal server error");
+    }
+  },
+
+
 };

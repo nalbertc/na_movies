@@ -8,10 +8,7 @@ export function WebRoutes() {
   const { user } = useAuth();
 
   return (
-    <Router future={{
-      v7_relativeSplatPath: true,
-      v7_startTransition: true,
-    }}>
+    <Router >
       {user?.id ?
         <AuthRoutes />
 

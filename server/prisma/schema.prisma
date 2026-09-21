@@ -96,6 +96,11 @@ model UserMovieInteraction {
   type            INTERACTION_TYPE
   durationSeconds Int?
 
+  viewedAt DateTime?
+  likedAt DateTime?
+  savedAt DateTime?
+  shared DateTime?
+
   userId String
   user   User   @relation(fields: [userId], references: [id])
 

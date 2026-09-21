@@ -5,20 +5,23 @@ import { Home } from "../pages/Home"
 import { MinhasListas } from "../pages/MyList"
 import { NotFound } from "../pages/NotFound"
 import { Movie } from "../pages/Personagem"
+import { Teste } from "../pages/Teste"
 
 export function AuthRoutes() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/listas" element={<MinhasListas />} />
-        <Route path="/generos" element={<Genre />} />
-        <Route path="/filme/:id" element={<Movie />} />
 
-        <Route path="/*" element={<NotFound />} />
-      </Routes>
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/listas" element={<MinhasListas />} />
+      <Route path="/generos" element={<Genre />} />
+      <Route path="/filme/:id" element={<Movie />} />
 
-    </BrowserRouter>
+      <Route path="/teste" element={<Teste />} />
+
+      <Route path="/*" element={<NotFound />} />
+    </Routes>
+
+
   )
 }
 

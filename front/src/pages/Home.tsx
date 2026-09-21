@@ -35,6 +35,7 @@ export interface Result {
 
 export function Home() {
   const [dadosFilmes, setDadosFilmes] = useState<Resposta>({} as Resposta);
+  const [dadosFilmesCarrocel, setDadosFilmesCarrocel] = useState<Resposta>({} as Resposta);
   const [paginaAtual, setPaginaAtual] = useState(1);
   const [loading, setLoading] = useState(true);
   const [buscaDeuCerto, setBuscaDeuCerto] = useState(false);
@@ -63,14 +64,33 @@ export function Home() {
     })();
   }, [paginaAtual]);
 
+  // filmes para o carrocel  
+  useEffect(() => {
+    (async () => {
+      try {
+        setLoading(true);
+        const { data } = await api.get(`/movies/tmdb/now_playing`);
+        setDadosFilmesCarrocel(data);
+        setBuscaDeuCerto(true);
+      } catch (error) {
+        console.error(error);
+        setBuscaDeuCerto(false);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
+
+
   // Passar o carrossel automaticamente a cada 6 segundos (se houver filmes)
   useEffect(() => {
-    if (!dadosFilmes.results || dadosFilmes.results.length === 0) return;
+    if (!dadosFilmesCarrocel.results || dadosFilmesCarrocel.results.length === 0) return;
     const interval = setInterval(() => {
-      setCarrosselIndex((prev) => (prev + 1) % Math.min(dadosFilmes.results.length, 5));
+      setCarrosselIndex((prev) => (prev + 1) % Math.min(dadosFilmesCarrocel.results.length, 10));
     }, 6000);
     return () => clearInterval(interval);
-  }, [dadosFilmes]);
+  }, [dadosFilmesCarrocel]);
 
   // Funções de Curtir e Salvar
   const toggleCurtir = (id: number) => {
@@ -86,7 +106,7 @@ export function Home() {
   };
 
   // Filme em destaque atual no carrossel
-  const filmeDestaque = dadosFilmes.results?.[carrosselIndex];
+  const filmeDestaque = dadosFilmesCarrocel.results?.[carrosselIndex];
 
   return (
     <div className="min-h-screen w-full flex flex-col items-center bg-zinc-950 text-zinc-100">
@@ -150,7 +170,7 @@ export function Home() {
                     <ChevronLeft size={20} />
                   </button>
                   <button
-                    onClick={() => setCarrosselIndex((prev) => (prev + 1) % 5)}
+                    onClick={() => setCarrosselIndex((prev) => (prev + 1) % 10)}
                     className="p-2.5 rounded-full bg-zinc-900/70 hover:bg-red-600 text-white backdrop-blur-md border border-zinc-700 transition-colors cursor-pointer"
                   >
                     <ChevronRight size={20} />
@@ -190,7 +210,7 @@ export function Home() {
 
                         {/* Overlay Gradiente no Hover */}
                         <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3">
-                          <button className="w-full bg-red-600 hover:bg-red-700 text-white text-xs font-semibold py-2 rounded-lg transition-colors flex items-center justify-center gap-1.5 shadow-md" onClick={() => navigation(`/filme/${result.id }`) }>
+                          <button className="w-full bg-red-600 hover:bg-red-700 text-white text-xs font-semibold py-2 rounded-lg transition-colors flex items-center justify-center gap-1.5 shadow-md" onClick={() => navigation(`/filme/${result.id}`)}>
                             <Play size={14} className="fill-white" /> Ver Detalhes
                           </button>
                         </div>

@@ -4,8 +4,15 @@ import { ensureAuthenticated } from "../middlewares/authentication";
 
 export const interactionsRoutes = Router();
 
-interactionsRoutes.get(
+interactionsRoutes.post(
   "/interaction",
   ensureAuthenticated,
   InteractionControler.newInteraction,
+);
+
+
+interactionsRoutes.get(
+  "/interaction/user",
+  ensureAuthenticated,
+  InteractionControler.viewInteractionUser,
 );

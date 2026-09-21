@@ -1,3 +1,4 @@
+import { AuthContextProvider } from "./contexts/AuthContext"
 import { WebRoutes } from "./routes"
 
 
@@ -5,7 +6,9 @@ function App() {
 
 
   return (
-    <WebRoutes />
+    <AuthContextProvider>
+      <WebRoutes />
+    </AuthContextProvider>
   )
 }
 

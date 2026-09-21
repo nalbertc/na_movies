@@ -1,7 +1,8 @@
-import { AlertCircle, ArrowRight, Film, Lock, Mail } from "lucide-react";
+import { AlertCircle, ArrowRight, Cylinder, Film, Lock, Mail } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../services/api";
+import { useAuth } from "../contexts/AuthContext";
 
 export function Login() {
   const navigate = useNavigate();
@@ -9,28 +10,26 @@ export function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const { signIn } = useAuth()
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
 
-    if (!email || !password) {
+    if (email === "" || password === "") {
       setError("Preencha todos os campos para continuar.");
       return;
     }
 
     try {
-      setLoading(true);
-      // Ajuste para a rota de login do seu backend
-      const response = await api.post("/login", { email, password });
 
-      // Exemplo salvando token se houver
-      if (response.data.token) {
-        localStorage.setItem("@NAMovies:token", response.data.token);
-      }
+      await signIn(email, password)
 
-      navigate("/");
+
+
+
     } catch (err: any) {
+
+
       console.error(err);
       setError(err.response?.data?.message || "Credenciais inválidas. Tente novamente.");
     } finally {
