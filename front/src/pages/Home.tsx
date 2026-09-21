@@ -25,6 +25,7 @@ export interface Resposta {
 
 export interface Result {
   id: number;
+  tmdbId: number
   title: string;
   overview?: string; // Descrição
   backdrop_path: string;
@@ -32,6 +33,23 @@ export interface Result {
   vote_average?: number; // Nota (ex: 8.5)
   release_date?: string; // Data de lançamento
 }
+
+// Tipagem exata da interação retornada pelo backend/Prisma
+export interface Interaction {
+  id: string;
+  type: "LIKE" | "SAVE" | "VIEW" | "SHARE";
+  durationSeconds: number | null;
+  viewedAt: string | Date | null;
+  likedAt: string | Date | null;
+  savedAt: string | Date | null;
+  shared: string | Date | null;
+  userId: string;
+  movieId: string;
+  createdAt: string | Date;
+  movie: Result
+}
+
+
 
 export function Home() {
   const [dadosFilmes, setDadosFilmes] = useState<Resposta>({} as Resposta);
@@ -82,6 +100,31 @@ export function Home() {
   }, []);
 
 
+  // 3. Buscar as interações ativas do usuário para inicializar curtidos/salvos
+  useEffect(() => {
+    (async () => {
+      try {
+        const { data } = await api.get("/interaction/user");
+
+        // Considera curtido se likedAt não for nulo ou se o type for LIKE
+        const idsCurtidos = data
+          .filter((item) => item.likedAt !== null || item.type === "LIKE")
+          .map((item) => Number(item.movie.tmdbId));
+
+        // Considera salvo se savedAt não for nulo ou se o type for SAVE
+        const idsSalvos = data
+          .filter((item) => item.savedAt !== null || item.type === "SAVE")
+          .map((item) => Number(item.movie.tmdbId));
+
+        setCurtidos(Array.from(new Set(idsCurtidos)));
+        setSalvos(Array.from(new Set(idsSalvos)));
+      } catch (error) {
+        console.error("Erro ao carregar interações do usuário:", error);
+      }
+    })();
+  }, []);
+
+
 
   // Passar o carrossel automaticamente a cada 6 segundos (se houver filmes)
   useEffect(() => {
@@ -104,6 +147,17 @@ export function Home() {
       prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
     );
   };
+
+  function handleInteraction(id: number, type: "LIKE" | "SAVE" | "VIEW" | "SHARE") {
+    try {
+      const data = api.post(`/interaction?id=${id}&type=${type}`,)
+
+      console.log(data)
+
+    } catch (error) {
+
+    }
+  }
 
   // Filme em destaque atual no carrossel
   const filmeDestaque = dadosFilmesCarrocel.results?.[carrosselIndex];
@@ -218,7 +272,7 @@ export function Home() {
                         {/* Botões de Curtir e Salvar no Topo do Card */}
                         <div className="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10">
                           <button
-                            onClick={(e) => { e.stopPropagation(); toggleCurtir(result.id); }}
+                            onClick={(e) => { e.stopPropagation(); toggleCurtir(result.id); handleInteraction(result.id, "LIKE") }}
                             className={`p-2 rounded-full backdrop-blur-md transition-all cursor-pointer ${isCurtido
                               ? "bg-red-600 text-white scale-110 shadow-md shadow-red-600/40"
                               : "bg-zinc-900/70 text-zinc-300 hover:text-white hover:bg-zinc-800"
@@ -229,7 +283,7 @@ export function Home() {
                           </button>
 
                           <button
-                            onClick={(e) => { e.stopPropagation(); toggleSalvar(result.id); }}
+                            onClick={(e) => { e.stopPropagation(); toggleSalvar(result.id); handleInteraction(result.id, "SAVE") }}
                             className={`p-2 rounded-full backdrop-blur-md transition-all cursor-pointer ${isSalvo
                               ? "bg-amber-500 text-zinc-950 scale-110 shadow-md shadow-amber-500/40"
                               : "bg-zinc-900/70 text-zinc-300 hover:text-white hover:bg-zinc-800"

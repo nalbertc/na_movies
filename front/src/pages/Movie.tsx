@@ -9,7 +9,7 @@ import {
   Share2,
   Star
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Footer } from "../components/Footer";
 import { Header } from "../components/Header";
@@ -43,16 +43,25 @@ export function Movie() {
   const [isCurtido, setIsCurtido] = useState(false);
   const [isSalvo, setIsSalvo] = useState(false);
 
+  const hasRegisteredView = useRef(false);
+
   useEffect(() => {
-    window.scrollTo(0, 0); // Sempre rola para o topo ao carregar a página de detalhes
+    window.scrollTo(0, 0);
+
+    // Reseta a ref quando o ID muda
+    hasRegisteredView.current = false;
+
     (async () => {
       try {
         setLoading(true);
         const { data } = await api.get(`/movies/tmdb/${id}`);
-
-        api.post(`/interaction?id=${id}&type=VIEW`)
-
         setMovie(data);
+
+        // Só faz a requisição se ainda não foi executada para este ID
+        if (!hasRegisteredView.current) {
+          hasRegisteredView.current = true;
+          await api.post(`/interaction?id=${id}&type=VIEW`);
+        }
       } catch (error) {
         console.error("Erro ao buscar detalhes do filme:", error);
       } finally {

@@ -4,13 +4,26 @@ import { Header } from "../components/Header"
 import { AuthContext, useAuth } from "../contexts/AuthContext"
 import { api } from "../services/api"
 import { useEffect, useState } from "react"
+import { Result } from "./Home"
+
+interface IInteraction {
+  id: string,
+  type: string,
+  durationSeconds: null,
+  viewedAt: Date | null,
+  likedAt: Date | null,
+  savedAt: Date | null,
+  shared: Date | null,
+  userId: string,
+  movieId: string,
+  createdAt: Date,
+  movie: Result
+}
 
 export function Teste() {
   const { user } = useAuth()
 
-  const [dadosFilmes, setDadosFilmes] = useState();
-
-
+  const [dadosFilmes, setDadosFilmes] = useState<IInteraction[]>([]);
 
 
   useEffect(() => {
@@ -59,8 +72,19 @@ export function Teste() {
 
 
         {
-          JSON.stringify(dadosFilmes)
+          dadosFilmes.map(item => (
+            <div key={item.id}>
+
+              <div>{item.movie.id}</div>
+              <div>{item.movie.tmdbId}</div>
+              <div>{item.movie.title}</div>
+              <div>{item.type}</div>
+
+            </div>
+          ))
         }
+
+        { }
 
 
 
